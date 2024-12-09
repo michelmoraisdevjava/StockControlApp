@@ -91,8 +91,17 @@ public class Stock {
 		return true;
 	}
 	
+	public synchronized void removeProduct(String name) {
+		if(!products.containsKey(name)) {
+			throw new ProductNotFoundException(name);
+		}
+		
+		products.remove(name);
+		System.out.println("Product '" + name + "' removed from stock successfully!");
+	}
+	
 	public synchronized void listProducts() {
-		System.out.println("Products in stock:");
+		System.out.println("\nProducts in stock:");
 		for(Product product : products.values()) {
 			System.out.println(product);
 		}

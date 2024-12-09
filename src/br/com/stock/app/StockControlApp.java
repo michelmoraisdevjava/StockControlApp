@@ -1,9 +1,11 @@
 package br.com.stock.app;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
 import br.com.stock.exception.InvalidOperationException;
+import br.com.stock.exception.ProductNotFoundException;
 import br.com.stock.exception.StockException;
 import br.com.stock.model.Product;
 import br.com.stock.service.Stock;
@@ -13,13 +15,23 @@ public class StockControlApp {
 	public static void main(String[] args) throws IOException {
 		Scanner sc = new Scanner(System.in);
 		Stock stock = new Stock();
+		String filePath;
 
-		System.out.print("Enter file full path: ");
-		String filePath = sc.nextLine();
+		while (true) {
+			System.out.print("Enter file full path: ");
+			filePath = sc.nextLine();
+			
+			File file = new File(filePath);
+			if(file.exists() && file.isFile()) {
+				break;
+			} else {
+				System.out.println("Invalid file path. Please try again.");
+			}
+		}
 
 		try {
 			stock.loadStock(filePath);
-			System.out.println("Estoque carregado com sucesso!");
+			System.out.println("Stock loaded successfully!");
 		} catch (IOException | InvalidOperationException e) {
 			System.out.println("Error loading file: " + e.getMessage());
 		}
@@ -32,6 +44,7 @@ public class StockControlApp {
 			System.out.println("3. Register Sale");
 			System.out.println("4. List Products");
 			System.out.println("5. Save and Exit");
+			System.out.println("6. Remove Product");
 			System.out.print("Choose an option: ");
 
 			int option = sc.nextInt();
@@ -48,6 +61,7 @@ public class StockControlApp {
 					exit = true;
 					System.out.println("Stock saved successfully. Leaving...");
 				}
+				case 6 -> removeProduct(stock, sc);
 				default -> System.out.println("Invalid option!");
 				}
 			} catch (StockException e) {
@@ -98,6 +112,17 @@ public class StockControlApp {
 			stock.registerSales(name, quantity);
 			System.out.println("Sale registered successfully!");
 		} catch (StockException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	private static void removeProduct(Stock stock, Scanner sc) {
+		System.out.print("Enter the product name to remove: ");
+		String name = sc.nextLine();
+		
+		try {
+			stock.removeProduct(name);
+		} catch(ProductNotFoundException e) {
 			System.out.println(e.getMessage());
 		}
 	}
